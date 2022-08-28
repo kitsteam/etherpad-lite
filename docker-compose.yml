@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        # ETHERPAD_PLUGINS: >-
+        #   ep_comments_page
+        #   ep_image_upload
+        #   kitsteam/ep_push2delete
+        #   ep_embedded_hyperlinks2
+        #   ep_headings2
+        #   ep_align
+        #   ep_font_color
+        #   ep_delete_empty_pads
+        #   ep_delete_after_delay
+        #   ep_helmet
+        #   ep_font_size
+        #   ep_disable_imports
+        INSTALL_SOFFICE: 'true'
+    stdin_open: true
+    command: "sleep infinity"
+    depends_on:
+      - mariadb
+    environment:
+      DB_CHARSET: ${DOCKER_COMPOSE_APP_ENV_DB_CHARSET:-utf8mb4}
+      DB_HOST: mariadb
+      DB_NAME: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_DATABASE:?}
+      DB_PASS: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_PASSWORD:?}
+      DB_PORT: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_PORT:-3306}
+      DB_TYPE: "mysql"
+      DB_USER: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_USER:?}
+      DEFAULT_PAD_TEXT: ${DOCKER_COMPOSE_APP_ENV_DEFAULT_PAD_TEXT}
+      DISABLE_IP_LOGGING: ${DOCKER_COMPOSE_APP_ENV_DISABLE_IP_LOGGING:-true}
+      SOFFICE: ${DOCKER_COMPOSE_APP_ENV_SOFFICE:-/usr/bin/soffice}
+      TRUST_PROXY: ${DOCKER_COMPOSE_APP_ENV_TRUST_PROXY:-true}
+    healthcheck:
+      disable: true
+    ports:
+      - "${DOCKER_COMPOSE_APP_PROD_PORT_PUBLISHED:-9001}:${DOCKER_COMPOSE_APP_PROD_PORT_TARGET:-9001}"
+    volumes:
+      - .:/opt/etherpad-lite
+      - /opt/etherpad-lite/node_modules
+
+  mariadb:
+    image: mariadb
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_bin
+    environment:
+      MARIADB_DATABASE: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_DATABASE:?}
+      MARIADB_PASSWORD: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_PASSWORD:?}
+      MARIADB_PORT: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_PORT:-3306}
+      MARIADB_RANDOM_ROOT_PASSWORD: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_RANDOM_ROOT_PASSWORD:-yes}
+      MARIADB_USER: ${DOCKER_COMPOSE_MARIADB_ENV_MARIADB_USER:?}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:
