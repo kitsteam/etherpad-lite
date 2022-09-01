@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Etherpad",
+    "short_name": "Etherpad",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
