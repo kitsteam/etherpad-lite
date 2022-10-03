@@ -4,6 +4,7 @@ services:
   app:
     build:
       context: .
+      dockerfile: Dockerfile-dev
       args:
         # ETHERPAD_PLUGINS: >-
         #   ep_comments_page
