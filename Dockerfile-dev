@@ -1,0 +1,32 @@
+FROM node:14-buster-slim as base
+
+FROM base as development
+
+ARG EP_HOME=
+ARG EP_UID=5001
+ARG EP_GID=0
+ARG EP_SHELL=
+RUN set -eux ; \
+    groupadd \ 
+        --system \
+        ${EP_GID:+--gid "${EP_GID}" --non-unique} \
+        etherpad ; \
+    useradd \
+        --system \
+        ${EP_UID:+--uid "${EP_UID}" --non-unique} \
+        --gid etherpad \
+        ${EP_HOME:+--home-dir "${EP_HOME}"} \
+        --create-home \
+        ${EP_SHELL:+--shell "${EP_SHELL}"} \
+        etherpad
+
+ARG EP_DIR=/opt/etherpad-lite
+RUN set -eux ; \
+    mkdir -p "${EP_DIR}" ; \
+    chown etherpad:etherpad "${EP_DIR}"
+
+USER etherpad
+
+WORKDIR "${EP_DIR}"
+
+COPY --chown=etherpad:etherpad . .
