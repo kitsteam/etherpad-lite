@@ -33,3 +33,5 @@ ca
 docker-compose-prod.override.yml
 docker-compose.override.yml
 docker-compose*.override.yml
+
+.vscode/settings.json
