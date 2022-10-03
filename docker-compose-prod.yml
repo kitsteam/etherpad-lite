@@ -1,8 +1,8 @@
 version: "3.8"
 
 # Add this file to extend the docker-compose setup, e.g.:
-# docker-compose -f docker-compose-prod.yml -f docker-compose-prod.override.yml --env-file .env.prod build --no-cache
-# docker-compose -f docker-compose-prod.yml -f docker-compose-prod.override.yml --env-file .env.prod up -d --build --force-recreate
+# docker compose -f docker-compose-prod.yml -f docker-compose-prod.override.yml --env-file .env.prod build --no-cache
+# docker compose -f docker-compose-prod.yml -f docker-compose-prod.override.yml --env-file .env.prod up -d --build --force-recreate
 
 services:
   app_prod:
