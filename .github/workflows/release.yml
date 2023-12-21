@@ -54,8 +54,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
-            ETHERPAD_PLUGINS = 'kitsteam/ep_comments_page kitsteam/ep_push2delete ep_image_upload ep_embedded_hyperlinks2 ep_headings2 ep_align ep_font_color ep_delete_empty_pads ep_delete_after_delay ep_helmet ep_font_size ep_disable_imports'
-            INSTALL_SOFFICE = 'true'
+            ETHERPAD_PLUGINS='kitsteam/ep_comments_page kitsteam/ep_push2delete ep_image_upload ep_embedded_hyperlinks2 ep_headings2 ep_align ep_font_color ep_delete_empty_pads ep_delete_after_delay ep_helmet ep_font_size ep_disable_imports'
+            INSTALL_SOFFICE=true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
