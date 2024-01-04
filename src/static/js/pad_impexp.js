@@ -143,13 +143,10 @@ const padimpexp = (() => {
       // hide stuff thats not avaible if abiword/soffice is disabled
       if (clientVars.exportAvailable === 'no') {
         $('#exportworda').remove();
-        $('#exportpdfa').remove();
         $('#exportopena').remove();
 
         $('#importmessageabiword').show();
       } else if (clientVars.exportAvailable === 'withoutPDF') {
-        $('#exportpdfa').remove();
-
         $('#exportworda').attr('href', `${padRootPath}/export/doc`);
         $('#exportopena').attr('href', `${padRootPath}/export/odt`);
 

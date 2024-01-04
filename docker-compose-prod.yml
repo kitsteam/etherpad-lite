@@ -22,6 +22,7 @@ services:
           ep_helmet
           ep_font_size
           ep_disable_imports
+      target: production
     depends_on:
       - postgres_prod
     environment:

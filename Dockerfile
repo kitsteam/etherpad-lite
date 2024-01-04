@@ -4,7 +4,7 @@
 #
 # Author: muxator
 
-FROM node:lts-alpine
+FROM node:lts-alpine as build
 LABEL maintainer="Etherpad team, https://github.com/ether/etherpad-lite"
 
 ARG TIMEZONE=
@@ -44,11 +44,6 @@ ARG INSTALL_ABIWORD=
 #   INSTALL_LIBREOFFICE=true
 ARG INSTALL_SOFFICE=
 
-# By default, Etherpad container is built and run in "production" mode. This is
-# leaner (development dependencies are not installed) and runs faster (among
-# other things, assets are minified & compressed).
-ENV NODE_ENV=production
-ENV ETHERPAD_PRODUCTION=true
 # Install dependencies required for modifying access.
 RUN apk add shadow bash
 # Follow the principle of least privilege: run as unprivileged user.
@@ -62,8 +57,6 @@ ARG EP_HOME=
 ARG EP_UID=5001
 ARG EP_GID=0
 ARG EP_SHELL=
-
-ENV NODE_ENV=production
 
 RUN groupadd --system ${EP_GID:+--gid "${EP_GID}" --non-unique} etherpad && \
     useradd --system ${EP_UID:+--uid "${EP_UID}" --non-unique} --gid etherpad \
@@ -88,6 +81,24 @@ RUN  \
 USER etherpad
 
 WORKDIR "${EP_DIR}"
+
+FROM build as development
+
+COPY --chown=etherpad:etherpad ./src/package.json ./src/package-lock.json ./src/
+COPY --chown=etherpad:etherpad ./src/bin ./src/bin
+COPY --chown=etherpad:etherpad ${SETTINGS} "${EP_DIR}"/settings.json
+
+RUN { [ -z "${ETHERPAD_PLUGINS}" ] || \
+      npm install --no-save --legacy-peer-deps ${ETHERPAD_PLUGINS}; } && \
+    src/bin/installDeps.sh
+
+FROM build as production
+
+# By default, Etherpad container is built and run in "production" mode. This is
+# leaner (development dependencies are not installed) and runs faster (among
+# other things, assets are minified & compressed).
+ENV NODE_ENV=production
+ENV ETHERPAD_PRODUCTION=true
 
 COPY --chown=etherpad:etherpad ./ ./
 
