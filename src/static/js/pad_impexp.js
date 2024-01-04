@@ -22,6 +22,10 @@
  * limitations under the License.
  */
 
+const { jsPDF } = require("jspdf/dist/jspdf.umd.min.js");
+window.DOMPurify = require("dompurify/dist/purify.min.js");
+window.html2canvas = require("html2canvas/dist/html2canvas.min.js");
+
 const padimpexp = (() => {
   let pad;
 
@@ -124,10 +128,13 @@ const padimpexp = (() => {
     fetch(url).then((response) => {
       return response.text()
     }).then((html) => {
-      const printWindow = window.open('', '', 'height=400,width=800');
-      printWindow.document.write(html);
-      printWindow.document.close();
-      printWindow.print();
+      const doc = new jsPDF('p', 'px', 'a4');
+      const wrappedHTML = `<div style="font-size:8px; width:430px;">${html}</div>`
+      doc.html(wrappedHTML, {
+        callback: (doc) => doc.output("dataurlnewwindow"),
+        x: 15,
+        y: 15
+      })
     })
   }
 

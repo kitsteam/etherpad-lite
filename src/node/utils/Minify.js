@@ -45,6 +45,9 @@ const LIBRARY_WHITELIST = [
   'tinycon',
   'underscore',
   'unorm',
+  'jspdf',
+  'dompurify',
+  'html2canvas'
 ];
 
 // What follows is a terrible hack to avoid loop-back within the server.
