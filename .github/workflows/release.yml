@@ -15,6 +15,7 @@ on:
   push:
     branches: 
       - kits
+      - add-docker-dev-setup-and-export-pdf
   release:
     types: [published]
 
