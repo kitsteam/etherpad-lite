@@ -124,18 +124,18 @@ const padimpexp = (() => {
     return false;
   }
 
-  function printPDF(url) {
+  function printPDF(url, id) {
     fetch(url).then((response) => {
-      return response.text()
+      return response.text();
     }).then((html) => {
-      const doc = new jsPDF('p', 'px', 'a4');
-      const wrappedHTML = `<div style="font-size:8px; width:430px;">${html}</div>`
+      const doc = new jsPDF('p', 'px', 'letter');
+      const wrappedHTML = `<div style="page-break-inside: avoid; font-size:8px; width:430px;">${html}</div>`;
       doc.html(wrappedHTML, {
-        callback: (doc) => doc.output("dataurlnewwindow"),
+        callback: (doc) => doc.output('save', `etherpad-${id}.pdf`),
         x: 15,
         y: 15
       })
-    })
+    });
   }
 
   // ///
@@ -160,7 +160,7 @@ const padimpexp = (() => {
       $('#exportpdfa').attr('href', '#');
       $('#exportpdfa').on('click', (e) => {
         e.preventDefault();
-        printPDF(`${padRootPath}/export/html`);
+        printPDF(`${padRootPath}/export/html`, clientVars.padId);
       });
 
       // hide stuff thats not avaible if abiword/soffice is disabled

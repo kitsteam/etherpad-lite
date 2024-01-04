@@ -466,6 +466,8 @@ exports.getPadHTMLDocument = async (padId, revNum, readOnlyId) => {
     stylesForExportCSS += css;
   });
 
+  stylesForExportCSS += '@page  { size: letter; }';
+
   let html = await getPadHTML(pad, revNum);
 
   for (const hookHtml of await hooks.aCallAll('exportHTMLAdditionalContent', {padId})) {
