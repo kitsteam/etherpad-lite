@@ -28,7 +28,6 @@ We're looking for maintainers and have some funding available.  Please contact J
 ```
 docker-compose up -d --build --force-recreate
 
-npm i
 ./bin/run.sh
 ```
 
