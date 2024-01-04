@@ -120,6 +120,17 @@ const padimpexp = (() => {
     return false;
   }
 
+  function printPDF(url) {
+    fetch(url).then((response) => {
+      return response.text()
+    }).then((html) => {
+      const printWindow = window.open('', '', 'height=400,width=800');
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.print();
+    })
+  }
+
   // ///
   const self = {
     init: (_pad) => {
@@ -139,6 +150,11 @@ const padimpexp = (() => {
       $('#exporthtmla').attr('href', `${padRootPath}/export/html`);
       $('#exportetherpada').attr('href', `${padRootPath}/export/etherpad`);
       $('#exportplaina').attr('href', `${padRootPath}/export/txt`);
+      $('#exportpdfa').attr('href', '#');
+      $('#exportpdfa').on('click', (e) => {
+        e.preventDefault();
+        printPDF(`${padRootPath}/export/html`);
+      });
 
       // hide stuff thats not avaible if abiword/soffice is disabled
       if (clientVars.exportAvailable === 'no') {

@@ -22,7 +22,6 @@
 
 const exporthtml = require('../utils/ExportHtml');
 const exporttxt = require('../utils/ExportTxt');
-const exportpdf = require('../utils/ExportPdf');
 const exportEtherpad = require('../utils/ExportEtherpad');
 const fs = require('fs');
 const settings = require('../utils/Settings');
@@ -73,9 +72,6 @@ exports.doExport = async (req, res, padId, readOnlyId, type) => {
   } else if (type === 'txt') {
     const txt = await exporttxt.getPadTXTDocument(padId, req.params.rev);
     res.send(txt);
-  } else if (type === 'pdf') {
-    //const pdf = await exportpdf.getPadPdfDocument(padId, req.params.rev);
-    //res.send(pdf);
   } else {
     // render the html document
     let html = await exporthtml.getPadHTMLDocument(padId, req.params.rev, readOnlyId);
