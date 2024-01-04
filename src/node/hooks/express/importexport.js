@@ -34,7 +34,7 @@ exports.expressCreateServer = (hookName, args, cb) => {
 
       // if abiword is disabled, and this is a format we only support with abiword, output a message
       if (settings.exportAvailable() === 'no' &&
-          ['odt', 'doc'].indexOf(req.params.type) !== -1) {
+          ['odt', 'pdf', 'doc'].indexOf(req.params.type) !== -1) {
         console.error(`Impossible to export pad "${req.params.pad}" in ${req.params.type} format.` +
                       ' There is no converter configured');
 
