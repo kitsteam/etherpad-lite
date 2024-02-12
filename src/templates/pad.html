@@ -178,7 +178,27 @@
       <!------------------------->
 
       <div id="import_export" class="popup"><div class="popup-content">
-          <h1>Export</h1>
+          <h1 data-l10n-id="pad.importExport.import_export"></h1>
+          <div class="acl-write">
+              <% e.begin_block("importColumn"); %>
+              <h2 data-l10n-id="pad.importExport.import"></h2>
+              <div class="importmessage" id="importmessageabiword" data-l10n-id="pad.importExport.abiword.innerHTML"></div><br>
+              <form id="importform" method="post" action="" target="importiframe" enctype="multipart/form-data">
+                  <div class="importformdiv" id="importformfilediv">
+                      <input type="file" name="file" size="10" id="importfileinput">
+                      <div class="importmessage" id="importmessagefail"></div>
+                  </div>
+                  <div id="import"></div>
+                  <div class="importmessage" id="importmessagesuccess" data-l10n-id="pad.importExport.importSuccessful"></div>
+                  <div class="importformdiv" id="importformsubmitdiv">
+                      <span class="nowrap">
+                          <input type="submit" class="btn btn-primary" name="submit" value="Import Now" disabled="disabled" id="importsubmitinput">
+                          <div alt="" id="importstatusball" class="loadingAnimation" align="top"></div>
+                      </span>
+                  </div>
+              </form>
+              <% e.end_block(); %>
+          </div>
           <div id="exportColumn">
               <h2 data-l10n-id="pad.importExport.export"></h2>
               <% e.begin_block("exportColumn"); %>

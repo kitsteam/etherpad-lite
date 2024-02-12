@@ -88,7 +88,7 @@
 	"pad.settings.about": "Über",
 	"pad.settings.poweredBy": "Betrieben von",
 	"pad.importExport.import_export": "Import/Export",
-	"pad.importExport.import": "Textdatei oder Dokument hochladen",
+	"pad.importExport.import": "Textdatei hochladen",
 	"pad.importExport.importSuccessful": "Erfolgreich!",
 	"pad.importExport.export": "Aktuelles Pad exportieren als:",
 	"pad.importExport.exportetherpad": "Etherpad",
