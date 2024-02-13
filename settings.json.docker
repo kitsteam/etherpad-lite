@@ -656,7 +656,7 @@
    * Allow only some file formats
    */
   "ep_disable_imports": {
-    "allow": []
+    "allow": ["etherpad", "txt"]
   },
 
   /*
