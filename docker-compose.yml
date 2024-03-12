@@ -18,20 +18,18 @@ services:
           ep_align
           ep_font_color
           ep_delete_empty_pads
-          ep_delete_after_delay
+          kitsteam/ep_delete_after_delay
           ep_helmet
           ep_font_size
           ep_disable_imports
       target: development
     tty: true
     stdin_open: true
-    volumes:
-      - .:/opt/etherpad-lite
-      - node_modules:/opt/etherpad-lite/src/node_modules
     depends_on:
       - postgres
     environment:
       NODE_ENV: development
+      ADMIN_PASSWORD: ${DOCKER_COMPOSE_APP_DEV_ENV_ADMIN_PASSWORD:?}
       ETHERPAD_PRODUCTION: false
       DB_CHARSET: ${DOCKER_COMPOSE_APP_DEV_ENV_DB_CHARSET:-utf8mb4}
       DB_HOST: postgres
@@ -46,6 +44,8 @@ services:
       SOFFICE: ${DOCKER_COMPOSE_APP_DEV_ENV_SOFFICE:-null}
       TRUST_PROXY: ${DOCKER_COMPOSE_APP_DEV_ENV_TRUST_PROXY:-true}
     restart: always
+    volumes:
+      - ./src:/opt/etherpad-lite/src
     ports:
       - "${DOCKER_COMPOSE_APP_DEV_PORT_PUBLISHED:-9001}:${DOCKER_COMPOSE_APP_DEV_PORT_TARGET:-9001}"
 

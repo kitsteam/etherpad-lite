@@ -155,7 +155,7 @@ exports.handleConnect = (socket) => {
  * Kicks all sessions from a pad
  */
 exports.kickSessionsFromPad = (padID) => {
-  if (typeof socketio.sockets.clients !== 'function') return;
+  if (typeof socketio?.sockets?.clients !== 'function') return;
 
   // skip if there is nobody on this pad
   if (_getRoomSockets(padID).length === 0) return;
