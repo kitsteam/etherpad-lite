@@ -17,8 +17,8 @@ services:
           ep_headings2
           ep_align
           ep_font_color
-          ep_delete_empty_pads
-          ep_delete_after_delay
+          kitsteam/ep_delete_empty_pads
+          kitsteam/ep_delete_after_delay
           ep_helmet
           ep_font_size
           ep_disable_imports
