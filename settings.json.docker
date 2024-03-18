@@ -303,7 +303,7 @@
    * Not setting this may cause problems during deployment.
    * Set to 0 to disable caching.
    */
-  "maxAge": "${MAX_AGE:604800}", // 60 * 60 * 24 * 7 = one week
+  "maxAge": "${MAX_AGE:21600}", // 60 * 60 * 6 = 6 hours
 
   /*
    * Absolute path to the Abiword executable.
@@ -524,10 +524,7 @@
     }
   },
 
-  /*
-   * Restrict socket.io transport methods
-   */
-  "socketTransportProtocols" : ["xhr-polling", "jsonp-polling", "htmlfile"],
+  "socketTransportProtocols" : ["websocket", "polling"],
 
   "socketIo": {
     /*
@@ -663,7 +660,7 @@
    * Delete pads after delay
    */
   "ep_delete_after_delay": {
-    "delay": 2592000, // thirty days, in seconds
+    "delay": 10, // thirty days, in seconds
     "loop": true,
     "loopDelay": 3600, // one hour, in seconds
     "deleteAtStart": true,
