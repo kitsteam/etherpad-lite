@@ -119,7 +119,7 @@ ENV ETHERPAD_PRODUCTION=true
 COPY --chown=etherpad:etherpad --from=adminBuild /opt/etherpad-lite/admin/dist ./src/templates/admin
 
 RUN bin/installDeps.sh && rm -rf ~/.npm && \
-    { [ -z "${ETHERPAD_PLUGINS}" ] || pnpm run install-plugins ${ETHERPAD_PLUGINS}; }
+    { [ -z "${ETHERPAD_PLUGINS}" ] || pnpm install --workspace-root ${ETHERPAD_PLUGINS}; }
 
 
 # Copy the configuration file.
