@@ -163,7 +163,7 @@ exports.handleConnect = (socket:any) => {
  */
 exports.kickSessionsFromPad = (padID: string) => {
 
-  if(socketio.sockets == null) return;
+  if(socketio?.sockets == null) return;
 
   // skip if there is nobody on this pad
   if (_getRoomSockets(padID).length === 0) return;
