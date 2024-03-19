@@ -14,8 +14,6 @@ name: Create and publish a Docker image
 on:
   release:
     types: [published]
-  push:
-    branches: ["upgrade-etherpad-develop-branch"]
 
 env:
   REGISTRY: ghcr.io
