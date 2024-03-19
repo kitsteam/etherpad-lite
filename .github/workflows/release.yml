@@ -15,7 +15,7 @@ on:
   release:
     types: [published]
   push:
-    branches: ["kits-qr-code-update"]
+    branches: ["etherpad-upgrade"]
 
 env:
   REGISTRY: ghcr.io
