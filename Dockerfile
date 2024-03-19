@@ -96,7 +96,7 @@ USER etherpad
 WORKDIR "${EP_DIR}"
 
 # etherpads version feature requires this. Only copy what is really needed
-COPY --chown=etherpad:etherpad ./.git/HEAD ./.git/HEAD
+# COPY --chown=etherpad:etherpad ./.git/HEAD ./.git/HEAD
 # COPY --chown=etherpad:etherpad ./.git/refs ./.git/refs
 COPY --chown=etherpad:etherpad ${SETTINGS} ./settings.json
 COPY --chown=etherpad:etherpad ./var ./var
