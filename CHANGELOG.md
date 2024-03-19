@@ -1,3 +1,43 @@
+# 2.0.1
+
+### Notable enhancements and fixes
+
+- Fixed a bug where a plugin depending on a scoped dependency would not install successfully.
+
+
+# 2.0.0
+
+
+### Compatibility changes
+
+- Socket io has been updated to 4.7.5. This means that the json.send function won't work anymore and needs to be changed to .emit('message', myObj)
+- Deprecating npm version 6 in favor of pnpm: We have made the decision to switch to the well established pnpm (https://pnpm.io/). It works by symlinking dependencies into a global directory allowing you to have a cleaner and more reliable environment.
+- Introducing Typescript to the Etherpad core: Etherpad core logic has been rewritten in Typescript allowing for compiler checking of errors.
+- Rewritten Admin Panel: The Admin panel has been rewritten in React and now features a more pleasant user experience. It now also features an integrated pad searching with sorting functionality. 
+
+### Notable enhancements and fixes
+
+* Bugfixes
+  - Live Plugin Manager: The live plugin manager caused problems when a plugin had depdendencies defined. This issue is now resolved.
+
+* Enhancements
+  - pnpm Workspaces: In addition to pnpm we introduced workspaces. A clean way to manage multiple bounded contexts like the admin panel or the bin folder.
+  - Bin folder: The bin folder has been moved from the src folder to the root folder. This change was necessary as the contained scripts do not represent core functionality of the user.
+  - Starting Etherpad: Etherpad can now be started with a single command: `pnpm run prod` in the root directory. 
+  - Installing Etherpad: Etherpad no longer symlinks itself in the root directory. This is now also taken care by pnpm, and it just creates a node_modules folder with the src directory`s ep_etherpad-lite folder
+  - Plugins can now be installed simply via the command: `pnpm run install-plugins first-plugin second-plugin` or if you want to install from path you can do:
+  `pnpm run install-plugins --path ../path-to-plugin`
+
+
+# 1.9.7
+
+### Notable enhancements and fixes
+
+* Added Live Plugin Manager: Plugins are now installed into a separate folder on the host system. This folder is called `plugin_packages`. 
+That way the plugins are separated from the normal etherpad installation.
+* Make repairPad.js more verbose
+* Fixed favicon not being loaded correctly
+
 # 1.9.6
 
 ### Notable enhancements and fixes
@@ -9,7 +49,7 @@
 
 # 1.9.5
 
-### Compability changes
+### Compatibility changes
 
 * This version deprecates NodeJS16 as it reached its end of life and won't receive any updates. So to get started with Etherpad v1.9.5 you need NodeJS 18 and above.
 * The bundled windows NodeJS version has been bumped to the current LTS version 20.
@@ -21,7 +61,7 @@
 
 # 1.9.4
 
-### Compability changes
+### Compatibility changes
 
 * Log4js has been updated to the latest version. As it involved a bump of 6 major version. 
   A lot has changed since then. Most notably the console appender has been deprecated. You can find out more about it [here](https://github.com/log4js-node/log4js-node)

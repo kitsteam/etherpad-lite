@@ -8,16 +8,17 @@ const runCmd = require('../../../node/utils/run_cmd');
 const tsort = require('./tsort');
 const pluginUtils = require('./shared');
 const defs = require('./plugin_defs');
+const settings = require('../../../node/utils/Settings');
 
 const logger = log4js.getLogger('plugins');
 
 // Log the version of npm at startup.
 (async () => {
   try {
-    const version = await runCmd(['npm', '--version'], {stdio: [null, 'string']});
-    logger.info(`npm --version: ${version}`);
+    const version = await runCmd(['pnpm', '--version'], {stdio: [null, 'string']});
+    logger.info(`pnpm --version: ${version}`);
   } catch (err) {
-    logger.error(`Failed to get npm version: ${err.stack || err}`);
+    logger.error(`Failed to get pnpm version: ${err.stack || err}`);
     // This isn't a fatal error so don't re-throw.
   }
 })();
@@ -26,10 +27,13 @@ exports.prefix = 'ep_';
 
 exports.formatPlugins = () => Object.keys(defs.plugins).join(', ');
 
+exports.getPlugins = () => Object.keys(defs.plugins);
+
 exports.formatParts = () => defs.parts.map((part) => part.full_name).join('\n');
 
-exports.formatHooks = (hookSetName, html) => {
-  let hooks = new Map();
+exports.getParts = () => defs.parts.map((part) => part.full_name);
+
+const sortHooks = (hookSetName, hooks) => {
   for (const [pluginName, def] of Object.entries(defs.plugins)) {
     for (const part of def.parts) {
       for (const [hookName, hookFnName] of Object.entries(part[hookSetName] || {})) {
@@ -47,6 +51,18 @@ exports.formatHooks = (hookSetName, html) => {
       }
     }
   }
+};
+
+
+exports.getHooks = (hookSetName) => {
+  const hooks = new Map();
+  sortHooks(hookSetName, hooks);
+  return hooks;
+};
+
+exports.formatHooks = (hookSetName, html) => {
+  let hooks = new Map();
+  sortHooks(hookSetName, hooks);
   const lines = [];
   const sortStringKeys = (a, b) => String(a[0]).localeCompare(b[0]);
   if (html) lines.push('<dl>');
@@ -105,22 +121,27 @@ exports.update = async () => {
 };
 
 exports.getPackages = async () => {
-  logger.info('Running npm to get a list of installed plugins...');
-  // Notes:
-  //   * Do not pass `--prod` otherwise `npm ls` will fail if there is no `package.json`.
-  //   * The `--no-production` flag is required (or the `NODE_ENV` environment variable must be
-  //     unset or set to `development`) because otherwise `npm ls` will not mention any packages
-  //     that are not included in `package.json` (which is expected to not exist).
-  const cmd = ['npm', 'ls', '--long', '--json', '--depth=0', '--no-production'];
-  const {dependencies = {}} = JSON.parse(await runCmd(cmd, {stdio: [null, 'string']}));
-  await Promise.all(Object.entries(dependencies).map(async ([pkg, info]) => {
-    if (!pkg.startsWith(exports.prefix)) {
-      delete dependencies[pkg];
-      return;
+  const {linkInstaller} = require("./installer");
+  const plugins = await linkInstaller.listPlugins();
+  const newDependencies = {};
+
+  for (const plugin of plugins) {
+    if (!plugin.name.startsWith(exports.prefix)) {
+      continue;
     }
-    info.realPath = await fs.realpath(info.path);
-  }));
-  return dependencies;
+    plugin.realPath = await fs.realpath(plugin.location);
+    plugin.path = plugin.realPath;
+    newDependencies[plugin.name] = plugin;
+  }
+
+  newDependencies['ep_etherpad-lite'] = {
+    name: 'ep_etherpad-lite',
+    version: settings.getEpVersion(),
+    path: path.join(settings.root, 'node_modules/ep_etherpad-lite'),
+    realPath: path.join(settings.root, 'src'),
+  };
+
+  return newDependencies;
 };
 
 const loadPlugin = async (packages, pluginName, plugins, parts) => {
