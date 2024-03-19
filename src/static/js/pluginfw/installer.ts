@@ -22,7 +22,7 @@ const logger = log4js.getLogger('plugins');
 export const pluginInstallPath = path.join(settings.root, 'src','plugin_packages');
 export const node_modules = path.join(findEtherpadRoot(),'src', 'node_modules');
 
-// export const installedPluginsPath = path.join(settings.root, 'var/installed_plugins.json');
+export const installedPluginsPath = path.join(settings.root, 'var/installed_plugins.json');
 
 const onAllTasksFinished = async () => {
   await plugins.update();
@@ -64,7 +64,7 @@ const migratePluginsFromNodeModules = async () => {
       .filter(([pkg, info]) => pkg.startsWith(plugins.prefix) && pkg !== 'ep_etherpad-lite')
       .map(async ([pkg, info]) => {
           const _info = info as PackageInfo
-          if (!_info.resolved) {
+          if (!_info.resolved || _info.resolved.includes('github')) {
           // Install from node_modules directory
           await linkInstaller.installFromPath(`${findEtherpadRoot()}/node_modules/${pkg}`);
         } else {
