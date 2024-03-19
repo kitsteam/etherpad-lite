@@ -4,15 +4,13 @@ version: "3.8"
 # docker-compose build --no-cache
 # docker-compose up -d --build --force-recreate
 
-#           kitsteam/ep_push2delete#fix-etherpad-upgrade-problem
-
 services:
   app:
     build:
       context: .
       args:
         ETHERPAD_PLUGINS: >-
-          kitsteam/ep_push2delete#fix-etherpad-upgrade-problem
+          kitsteam/ep_push2delete
           ep_image_upload
           ep_helmet
           kitsteam/ep_comments_page
