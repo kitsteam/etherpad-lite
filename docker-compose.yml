@@ -36,7 +36,7 @@ services:
     environment:
       # change from development to production if needed
       NODE_ENV: development
-      ADMIN_PASSWORD: ${DOCKER_COMPOSE_APP_DEV_ADMIN_PASSWORD}
+      ADMIN_PASSWORD: ${DOCKER_COMPOSE_APP_DEV_ENV_ADMIN_PASSWORD}
       DB_CHARSET: ${DOCKER_COMPOSE_APP_DEV_ENV_DB_CHARSET:-utf8mb4}
       DB_HOST: postgres
       DB_NAME: ${DOCKER_COMPOSE_POSTGRES_DEV_ENV_POSTGRES_DATABASE:?}
@@ -67,7 +67,7 @@ services:
     # Exposing the port is not needed unless you want to access this database instance from the host.
     # Be careful when other postgres docker container are running on the same port
     # ports:
-    #   - "5432:5432"
+    #  - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/pgdata
 

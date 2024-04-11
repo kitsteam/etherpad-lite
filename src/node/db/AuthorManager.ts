@@ -312,4 +312,10 @@ exports.removePad = async (authorID: string, padID: string) => {
     delete author.padIDs[padID];
     await db.set(`globalAuthor:${authorID}`, author);
   }
+
+  const author_reloaded = await db.get(`globalAuthor:${authorID}`);
+  if (author_reloaded.padIDs == null || Object.keys(author_reloaded.padIDs).length === 0) {
+    author_reloaded.name = "Guest"
+    await db.set(`globalAuthor:${authorID}`, author_reloaded);
+  }
 };
