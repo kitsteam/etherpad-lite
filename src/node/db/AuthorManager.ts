@@ -315,7 +315,7 @@ exports.removePad = async (authorID: string, padID: string) => {
 
   const author_reloaded = await db.get(`globalAuthor:${authorID}`);
   if (author_reloaded.padIDs == null || Object.keys(author_reloaded.padIDs).length === 0) {
-    author_reloaded.name = "Guest"
+    author_reloaded.name = null
     await db.set(`globalAuthor:${authorID}`, author_reloaded);
   }
 };
