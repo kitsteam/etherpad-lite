@@ -44,7 +44,8 @@ $(() => {
   $('#go2Name').on('submit', () => {
     const padname = $('#padname').val();
     if (padname.length > 0) {
-      window.location = `p/${encodeURIComponent(padname.trim())}`;
+      const padName = encodeURIComponent(padname.trim());
+      window.location = `p/${padName}`;
     } else {
       alert('Please enter a name');
     }
@@ -52,7 +53,13 @@ $(() => {
   });
 
   $('#button').on('click', () => {
-    window.location = `p/${randomPadName()}`;
+    const padName = randomPadName();
+    const json = window.localStorage.getItem('pads');
+
+    const pads = (json && json !== '') ? JSON.parse(json) : [];
+    pads.push({name: padName, createdAt: Date.now()});
+    window.localStorage.setItem('pads', JSON.stringify(pads));
+    window.location = `p/${padName}`;
   });
 
   // start the custom js

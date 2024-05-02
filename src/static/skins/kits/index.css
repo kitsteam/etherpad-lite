@@ -9267,7 +9267,8 @@ fieldset:disabled .btn {
 }
 
 .rounded-pill {
-  border-radius: var(--bs-border-radius-pill) !important
+  border-radius: var(--bs-border-radius-pill) !important;
+  font-size: 12px;
 }
 
 .rounded-top {
