@@ -660,7 +660,7 @@
    * Delete pads after delay
    */
   "ep_delete_after_delay": {
-    "delay": 2592000, // thirty days, in seconds
+    "delay": 33696000, // thirty days * 13 months, in seconds
     "loop": true,
     "loopDelay": 3600, // one hour, in seconds
     "deleteAtStart": true,
