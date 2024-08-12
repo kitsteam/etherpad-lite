@@ -3,31 +3,46 @@
  * Worker thread to minify JS & CSS files out of the main NodeJS thread
  */
 
-const CleanCSS = require('clean-css');
-const Terser = require('terser');
-const fsp = require('fs').promises;
-const path = require('path');
-const Threads = require('threads');
+import {expose} from 'threads'
+import {build, transform} from 'esbuild';
 
-const compressJS = (content) => Terser.minify(content);
+/*
+  * Minify JS content
+  * @param {string} content - JS content to minify
+ */
+const compressJS = async (content) => {
+  return await transform(content, {minify: true});
+}
 
-const compressCSS = async (filename, ROOT_DIR) => {
-  const absPath = path.resolve(ROOT_DIR, filename);
-  try {
-    const basePath = path.dirname(absPath);
-    const output = await new CleanCSS({
-      rebase: true,
-      rebaseTo: basePath,
-    }).minify([absPath]);
-    return output.styles;
-  } catch (error) {
-    // on error, just yield the un-minified original, but write a log message
-    console.error(`Unexpected error minifying ${filename} (${absPath}): ${error}`);
-    return await fsp.readFile(absPath, 'utf8');
-  }
+/*
+  * Minify CSS content
+  * @param {string} filename - name of the file
+  * @param {string} ROOT_DIR - the root dir of Etherpad
+ */
+const compressCSS = async (content) => {
+  const transformedCSS = await build(
+    {
+      entryPoints: [content],
+      minify: true,
+      bundle: true,
+      loader:{
+        '.jpg': 'dataurl',
+        '.png': 'dataurl',
+        '.gif': 'dataurl',
+        '.ttf': 'dataurl',
+        '.otf': 'dataurl',
+        '.woff': 'dataurl',
+        '.woff2': 'dataurl',
+        '.eot': 'dataurl',
+        '.svg': 'dataurl'
+      },
+      write: false
+    }
+  )
+  return transformedCSS.outputFiles[0].text
 };
 
-Threads.expose({
-  compressJS,
+expose({
+  compressJS: compressJS,
   compressCSS,
 });

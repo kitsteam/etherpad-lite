@@ -19,6 +19,7 @@
  * limitations under the License.
  */
 
+
 const randomPadName = () => {
   // the number of distinct chars (64) is chosen to ensure that the selection will be uniform when
   // using the PRNG below
@@ -28,8 +29,7 @@ const randomPadName = () => {
   // make room for 8-bit integer values that span from 0 to 255.
   const randomarray = new Uint8Array(stringLength);
   // use browser's PRNG to generate a "unique" sequence
-  const cryptoObj = window.crypto || window.msCrypto; // for IE 11
-  cryptoObj.getRandomValues(randomarray);
+  crypto.getRandomValues(randomarray);
   let randomstring = '';
   for (let i = 0; i < stringLength; i++) {
     // instead of writing "Math.floor(randomarray[i]/256*64)"
@@ -42,10 +42,9 @@ const randomPadName = () => {
 
 $(() => {
   $('#go2Name').on('submit', () => {
-    const padname = $('#padname').val();
+    const padname = $('#padname').val() as string;
     if (padname.length > 0) {
-      const padName = encodeURIComponent(padname.trim());
-      window.location = `p/${padName}`;
+      window.location.href = `p/${encodeURIComponent(padname.trim())}`;
     } else {
       alert('Please enter a name');
     }
@@ -53,16 +52,11 @@ $(() => {
   });
 
   $('#button').on('click', () => {
-    const padName = randomPadName();
-    const json = window.localStorage.getItem('pads');
-
-    const pads = (json && json !== '') ? JSON.parse(json) : [];
-    pads.push({name: padName, createdAt: Date.now()});
-    window.localStorage.setItem('pads', JSON.stringify(pads));
-    window.location = `p/${padName}`;
+    window.location.href = `p/${randomPadName()}`;
   });
 
   // start the custom js
+  // @ts-ignore
   if (typeof window.customStart === 'function') window.customStart();
 });
 

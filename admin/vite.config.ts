@@ -15,7 +15,8 @@ export default defineConfig({
   })],
     base: '/admin',
     build:{
-      outDir: '../src/templates/admin'
+      outDir: '../src/templates/admin',
+        emptyOutDir: true,
     },
   server:{
     proxy: {
@@ -27,8 +28,11 @@ export default defineConfig({
         '/admin-auth/': {
             target: 'http://localhost:9001',
             changeOrigin: true,
-            rewrite: (path) => path.replace(/^\/admin-prox/, '/admin/')
+        },
+        '/stats': {
+            target: 'http://localhost:9001',
+            changeOrigin: true,
         }
-    }
+        }
   }
 })

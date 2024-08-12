@@ -22,9 +22,8 @@
  * limitations under the License.
  */
 
-const { jsPDF } = require("jspdf/dist/jspdf.umd.min.js");
-window.DOMPurify = require("dompurify/dist/purify.min.js");
-window.html2canvas = require("html2canvas/dist/html2canvas.min.js");
+import html10n from './vendors/html10n';
+
 
 const padimpexp = (() => {
   let pad;

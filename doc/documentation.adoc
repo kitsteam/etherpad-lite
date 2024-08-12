@@ -1,7 +1,7 @@
 == About this Documentation
 
 The goal of this documentation is to comprehensively explain Etherpad,
-both from a reference as well as a conceptual point of view.
+both from a reference and a conceptual point of view.
 
 Where appropriate, property types, method arguments, and the arguments
 provided to event handlers are detailed in a list underneath the topic

@@ -93,17 +93,20 @@ export const HomePage = () => {
         if (!pluginsSocket) {
             return
         }
-
         pluginsSocket?.emit('search', searchParams)
-
-
         pluginsSocket!.on('results:search', (data: {
             results: PluginDef[]
         }) => {
             setPlugins(data.results)
         })
-
-
+        pluginsSocket!.on('results:searcherror', (data: {error: string}) => {
+            console.log(data.error)
+            useStore.getState().setToastState({
+                open: true,
+                title: "Error retrieving plugins",
+                success: false
+            })
+        })
     }, [searchParams, pluginsSocket]);
 
     const uninstallPlugin  = (pluginName: string)=>{
@@ -116,7 +119,6 @@ export const HomePage = () => {
         pluginsSocket!.emit('install', pluginName);
         setPlugins(plugins.filter(plugin=>plugin.name !== pluginName))
     }
-
 
     useDebounce(()=>{
         setSearchParams({
@@ -142,7 +144,7 @@ export const HomePage = () => {
             <tbody style={{overflow: 'auto'}}>
             {sortedInstalledPlugins.map((plugin, index) => {
                 return <tr key={index}>
-                    <td>{plugin.name}</td>
+                    <td><a rel="noopener noreferrer" href={`https://npmjs.com/${plugin.name}`} target="_blank">{plugin.name}</a></td>
                     <td>{plugin.version}</td>
                     <td>
                     {
@@ -153,12 +155,12 @@ export const HomePage = () => {
                     </td>
                         </tr>
                     })}
-                </tbody>
-            </table>
+            </tbody>
+        </table>
 
 
-                <h2><Trans i18nKey="admin_plugins.available"/></h2>
-                <SearchField onChange={v=>{setSearchTerm(v.target.value)}} placeholder={t('admin_plugins.available_search.placeholder')} value={searchTerm}/>
+        <h2><Trans i18nKey="admin_plugins.available"/></h2>
+        <SearchField onChange={v=>{setSearchTerm(v.target.value)}} placeholder={t('admin_plugins.available_search.placeholder')} value={searchTerm}/>
 
         <table id="available-plugins">
             <thead>
@@ -171,17 +173,21 @@ export const HomePage = () => {
             </tr>
             </thead>
             <tbody style={{overflow: 'auto'}}>
-            {plugins.map((plugin) => {
-                return <tr key={plugin.name}>
-                    <td><a rel="noopener noreferrer" href={`https://npmjs.com/${plugin.name}`} target="_blank">{plugin.name}</a></td>
-                    <td>{plugin.description}</td>
-                    <td>{plugin.version}</td>
-                    <td>{plugin.time}</td>
-                    <td>
-                        <IconButton icon={<Download/>} onClick={() => installPlugin(plugin.name)} title={<Trans i18nKey="admin_plugins.available_install.value"/>}/>
-                    </td>
-                </tr>
-            })}
+            {(plugins.length > 0) ?
+                    plugins.map((plugin) => {
+                        return <tr key={plugin.name}>
+                            <td><a rel="noopener noreferrer" href={`https://npmjs.com/${plugin.name}`} target="_blank">{plugin.name}</a></td>
+                            <td>{plugin.description}</td>
+                            <td>{plugin.version}</td>
+                            <td>{plugin.time}</td>
+                            <td>
+                                <IconButton icon={<Download/>} onClick={() => installPlugin(plugin.name)} title={<Trans i18nKey="admin_plugins.available_install.value"/>}/>
+                            </td>
+                        </tr>
+                    })
+                :
+                <tr><td colSpan={5}>{searchTerm == '' ? <Trans i18nKey="pad.loading"/>: <Trans i18nKey="admin_plugins.available_not-found"/>}</td></tr>
+            }
             </tbody>
         </table>
     </div>

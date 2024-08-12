@@ -88,7 +88,7 @@ exports.socketio = () => {
 const sessioninfos:MapArrayType<any> = {};
 exports.sessioninfos = sessioninfos;
 
-stats.gauge('totalUsers', () => socketio ? socketio.sockets.size : 0);
+stats.gauge('totalUsers', () => socketio ? socketio.engine.clientsCount : 0);
 stats.gauge('activePads', () => {
   const padIds = new Set();
   for (const {padId} of Object.values(sessioninfos)) {
@@ -163,7 +163,7 @@ exports.handleConnect = (socket:any) => {
  */
 exports.kickSessionsFromPad = (padID: string) => {
 
-  if(socketio?.sockets == null) return;
+  if(socketio.sockets == null) return;
 
   // skip if there is nobody on this pad
   if (_getRoomSockets(padID).length === 0) return;
@@ -996,7 +996,8 @@ const handleClientReady = async (socket:any, message: typeof ChatMessage) => {
         percentageToScrollWhenUserPressesArrowUp:
             settings.scrollWhenFocusLineIsOutOfViewport.percentageToScrollWhenUserPressesArrowUp,
       },
-      initialChangesets: [], // FIXME: REMOVE THIS SHIT
+      initialChangesets: [], // FIXME: REMOVE THIS SHIT,
+      mode: process.env.NODE_ENV
     };
 
     // Add a username to the clientVars if one avaiable

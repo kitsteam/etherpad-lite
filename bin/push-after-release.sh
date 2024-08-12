@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # Specify the path to your package.json file

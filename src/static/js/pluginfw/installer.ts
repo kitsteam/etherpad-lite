@@ -60,11 +60,12 @@ const migratePluginsFromNodeModules = async () => {
   const cmd = ['pnpm', 'ls', '--long', '--json', '--depth=0', '--no-production'];
   const [{dependencies = {}}] = JSON.parse(await runCmd(cmd,
       {stdio: [null, 'string']}));
+
   await Promise.all(Object.entries(dependencies)
       .filter(([pkg, info]) => pkg.startsWith(plugins.prefix) && pkg !== 'ep_etherpad-lite')
       .map(async ([pkg, info]) => {
           const _info = info as PackageInfo
-          if (!_info.resolved || _info.resolved.includes('github')) {
+          if (!_info.resolved) {
           // Install from node_modules directory
           await linkInstaller.installFromPath(`${findEtherpadRoot()}/node_modules/${pkg}`);
         } else {
@@ -99,6 +100,10 @@ export const checkForMigration = async () => {
 
     for (let file of files){
       const moduleName = path.basename(file);
+      if (moduleName === '.versions') {
+        // Skip the directory using live-plugin-manager
+        continue;
+      }
       try {
         await fs.access(path.join(node_modules, moduleName), fs.constants.F_OK);
         logger.debug(`plugin ${moduleName} already exists in node_modules`);

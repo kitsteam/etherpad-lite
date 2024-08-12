@@ -24,11 +24,14 @@
 
 let socket;
 
+
 // These jQuery things should create local references, but for now `require()`
 // assigns to the global `$` and augments it with plugins.
 require('./vendors/jquery');
 require('./vendors/farbtastic');
 require('./vendors/gritter');
+
+import html10n from './vendors/html10n'
 
 const Cookies = require('./pad_utils').Cookies;
 const chat = require('./chat').chat;
@@ -136,7 +139,8 @@ const getParameters = [
     name: 'lang',
     checkVal: null,
     callback: (val) => {
-      window.html10n.localize([val, 'en']);
+      console.log('Val is', val)
+      html10n.localize([val, 'en']);
       Cookies.set('language', val);
     },
   },
@@ -167,7 +171,7 @@ const getUrlVars = () => new URL(window.location.href).searchParams;
 
 const sendClientReady = (isReconnect) => {
   let padId = document.location.pathname.substring(document.location.pathname.lastIndexOf('/') + 1);
-  // unescape neccesary due to Safari and Opera interpretation of spaces
+  // unescape necessary due to Safari and Opera interpretation of spaces
   padId = decodeURIComponent(padId);
 
   if (!isReconnect) {
@@ -213,7 +217,7 @@ const sendClientReady = (isReconnect) => {
 const handshake = async () => {
   let receivedClientVars = false;
   let padId = document.location.pathname.substring(document.location.pathname.lastIndexOf('/') + 1);
-  // unescape neccesary due to Safari and Opera interpretation of spaces
+  // unescape necessary due to Safari and Opera interpretation of spaces
   padId = decodeURIComponent(padId);
 
   // padId is used here for sharding / scaling.  We prefix the padId with padId: so it's clear
@@ -230,7 +234,7 @@ const handshake = async () => {
     sendClientReady(false);
   });
 
-  socket.on('reconnect', () => {
+  socket.io.on('reconnect', () => {
     // pad.collabClient might be null if the hanshake failed (or it never got that far).
     if (pad.collabClient != null) {
       pad.collabClient.setChannelState('CONNECTED');
@@ -250,14 +254,29 @@ const handshake = async () => {
   socket.on('disconnect', (reason) => {
     // The socket.io client will automatically try to reconnect for all reasons other than "io
     // server disconnect".
-    if (reason !== 'io server disconnect') return;
+    console.log(`Socket disconnected: ${reason}`)
+    //if (reason !== 'io server disconnect' || reason !== 'ping timeout') return;
     socketReconnecting();
-    socket.connect();
   });
 
-  socket.on('reconnecting', socketReconnecting);
 
-  socket.on('reconnect_failed', (error) => {
+  socket.on('shout', (obj) => {
+    if(obj.type === "COLLABROOM") {
+      let date = new Date(obj.data.payload.timestamp);
+      $.gritter.add({
+        // (string | mandatory) the heading of the notification
+        title: 'Admin message',
+        // (string | mandatory) the text inside the notification
+        text: '[' + date.toLocaleTimeString() + ']: ' + obj.data.payload.message.message,
+        // (bool | optional) if you want it to fade out on its own or just sit there
+        sticky: obj.data.payload.message.sticky
+      });
+    }
+  })
+
+  socket.io.on('reconnect_attempt', socketReconnecting);
+
+  socket.io.on('reconnect_failed', (error) => {
     // pad.collabClient might be null if the hanshake failed (or it never got that far).
     if (pad.collabClient != null) {
       pad.collabClient.setChannelState('DISCONNECTED', 'reconnect_timeout');
@@ -265,6 +284,7 @@ const handshake = async () => {
       throw new Error('Reconnect timed out');
     }
   });
+
 
   socket.on('error', (error) => {
     // pad.collabClient might be null if the error occurred before the hanshake completed.
@@ -298,6 +318,15 @@ const handshake = async () => {
             () => $.ajax('../_extendExpressSessionLifetime', {method: 'PUT'}).catch(() => {});
         setInterval(ping, window.clientVars.sessionRefreshInterval);
       }
+      if(window.clientVars.mode === "development") {
+        console.warn('Enabling development mode with live update')
+        socket.on('liveupdate', ()=>{
+
+          console.log('Live reload update received')
+          location.reload()
+        })
+      }
+
     } else if (obj.disconnect) {
       padconnectionstatus.disconnected(obj.disconnect);
       socket.disconnect();
@@ -698,7 +727,7 @@ const pad = {
       $.ajax(
           {
             type: 'post',
-            url: 'ep/pad/connection-diagnostic-info',
+            url: '../ep/pad/connection-diagnostic-info',
             data: {
               diagnosticInfo: JSON.stringify(pad.diagnosticInfo),
             },

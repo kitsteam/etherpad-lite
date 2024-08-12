@@ -1,9 +1,9 @@
-<% var settings=require("ep_etherpad-lite/node/utils/Settings"); %>
-  <!doctype html>
-  <html>
+<!doctype html>
+<html>
 
         <title><%=settings.title%></title>
         <meta charset="utf-8">
+        <link rel="manifest" href="/manifest.json" />
         <meta name="referrer" content="no-referrer">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover">
         
@@ -13,16 +13,7 @@
         <link rel="manifest" href="static/site.webmanifest">
         <link rel="mask-icon" href="static/safari-pinned-tab.svg" color="#5bbad5">
         <link rel="shortcut icon" href="favicon.ico">
-        <meta name="msapplication-TileColor" content="#da532c">
-        <meta name="msapplication-config" content="static/browserconfig.xml">
-        <meta name="theme-color" content="#ffffff">
-
         <link rel="localizations" type="application/l10n+json" href="locales.json">
-        <script type="text/javascript" src="static/js/vendors/html10n.js?v=<%=settings.randomVersionString%>"></script>
-        <script type="text/javascript" src="static/js/l10n.js?v=<%=settings.randomVersionString%>"></script>
-        <script src="static/js/vendors/jquery.js"></script>
-        <script src="static/js/vendors/bootstrap.bundle.min.js"></script>
-        <script src="static/js/index.js"></script>
 
         <% e.begin_block("indexCustomStyles"); %>
         <link href="static/skins/kits/index.css?v=<%=settings.randomVersionString%>" rel="stylesheet">
@@ -99,15 +90,7 @@
              <!-- End Right Block -->
           </div>
         </div>
-        <!--[if IE
-          ]><div
-            class="w-100 text-center bg-dark text-white pt-3 px-4 pb-1 position-fixed"
-            style="z-index: 1000; bottom: 0">
-            <p onClick="parentNode.remove()">
-              Please use a modern browser for a better browsing experience. <span class="float-right">X</span>
-            </p>
-          </div><!
-        [endif]-->
+        <script src="<%=entrypoint%>"></script>
 
         <% e.begin_block("indexCustomScripts"); %>
         <script src="static/skins/<%=encodeURI(settings.skinName)%>/index.js?v=<%=settings.randomVersionString%>"></script>
