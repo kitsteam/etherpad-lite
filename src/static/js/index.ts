@@ -52,7 +52,13 @@ $(() => {
   });
 
   $('#button').on('click', () => {
-    window.location.href = `p/${randomPadName()}`;
+    const padName = randomPadName();
+    const json = window.localStorage.getItem('pads');
+
+    const pads = (json && json !== '') ? JSON.parse(json) : [];
+    pads.push({name: padName, createdAt: Date.now()});
+    window.localStorage.setItem('pads', JSON.stringify(pads));
+    window.location = `p/${padName}`;
   });
 
   // start the custom js

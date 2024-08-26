@@ -9,9 +9,20 @@ services:
     build:
       context: .
       args:
-        # Attention: installed plugins in the node_modules folder get overwritten during volume mount in dev
-        ETHERPAD_PLUGINS:
-      # change from development to production if needed
+        ETHERPAD_PLUGINS: >-
+          ep_image_upload
+          ep_headings2
+          ep_align
+          ep_font_color
+          ep_embedded_hyperlinks2
+          ep_helmet
+          ep_font_size
+          ep_disable_imports
+        ETHERPAD_GITHUB_PLUGINS: >-
+          kitsteam/ep_push2delete
+          kitsteam/ep_delete_empty_pads
+          kitsteam/ep_comments_page#merge-upstream-1.0.36
+          kitsteam/ep_delete_after_delay
       target: development
     tty: true
     stdin_open: true
@@ -19,7 +30,6 @@ services:
       # no volume mapping of node_modules as otherwise the build-time installed plugins will be overwritten with the mount
       # the same applies to package.json and pnpm-lock.yaml in root dir as these would also get overwritten and build time installed plugins will be removed
       - ./src:/opt/etherpad-lite/src
-      - ./bin:/opt/etherpad-lite/bin
     depends_on:
       - postgres
     environment:
