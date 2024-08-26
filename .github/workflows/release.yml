@@ -53,7 +53,7 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
-            ETHERPAD_PLUGINS=ep_image_upload ep_embedded_hyperlinks2 ep_headings2 ep_align ep_font_color ep_helmet ep_font_size ep_disable_imports |
+            ETHERPAD_PLUGINS=ep_image_upload ep_embedded_hyperlinks2 ep_headings2 ep_align ep_font_color ep_helmet ep_font_size ep_disable_imports
             ETHERPAD_GITHUB_PLUGINS=kitsteam/ep_comments_page kitsteam/ep_push2delete kitsteam/ep_delete_after_delay kitsteam/ep_delete_empty_pads
           push: true
           tags: ${{ steps.meta.outputs.tags }}
