@@ -1,4 +1,5 @@
 function initialize_qrcode() {
+    console.log('initialize_qrcode')
     document.getElementById("embedreadonly").addEventListener('change', (changeEvent) => { 
       generate_qrcode();
       return true;
@@ -8,8 +9,8 @@ function initialize_qrcode() {
 }
 
 function generate_qrcode() {
-    const url = document.getElementById("linkinput").value;
-    const qrCodeDiv = document.getElementById('qrcode')
+    const url = document.getElementById("linkinput").value || window.location.href;
+    const qrCodeDiv = document.getElementById("qrcode");
     const width = 200;
     const height = 200;
 
@@ -48,13 +49,13 @@ function qrCodeOptions(url, width, height) {
 
 function createQrCode(qrCodeDiv, url, width, height) {
     const canvas = document.createElement('div');
-    qrCodeDiv.appendChild(canvas)
+    qrCodeDiv.appendChild(canvas);
 
     let qrCode = new QRCodeStyling(qrCodeOptions(url, width, height));
     qrCode.append(canvas);
     const downloadButton = addDownloadButton(qrCode);
     
-    qrCodeDiv.appendChild(downloadButton)
+    qrCodeDiv.appendChild(downloadButton);
   
     return qrCode   
 }
