@@ -483,14 +483,24 @@ const generateDefinitionForVersion = (version:string, style = APIPathStyle.FLAT)
         ...defaultResponses,
       },
       securitySchemes: {
-        ApiKey: {
-          type: 'apiKey',
-          in: 'query',
-          name: 'apikey',
+        openid: {
+          type: "oauth2",
+          flows: {
+            authorizationCode: {
+              authorizationUrl: settings.sso.issuer+"/oidc/auth",
+              tokenUrl: settings.sso.issuer+"/oidc/token",
+              scopes: {
+                openid: "openid",
+                profile: "profile",
+                email: "email",
+                admin: "admin"
+              }
+            }
+          },
         },
       },
     },
-    security: [{ApiKey: []}],
+    security: [{openid: []}],
   };
 
   // build operations
@@ -598,7 +608,7 @@ exports.expressPreSession = async (hookName:string, {app}:any) => {
       for (const funcName of Object.keys(apiHandler.version[version])) {
         const handler = async (c: any, req:any, res:any) => {
           // parse fields from request
-          const {header, params, query} = c.request;
+          const {headers, params, query} = c.request;
 
           // read form data if method was POST
           let formData:MapArrayType<any> = {};
@@ -612,8 +622,7 @@ exports.expressPreSession = async (hookName:string, {app}:any) => {
             }
           }
 
-          const fields = Object.assign({}, header, params, query, formData);
-
+          const fields = Object.assign({}, headers, params, query, formData);
           if (logger.isDebugEnabled()) {
             logger.debug(`REQUEST, v${version}:${funcName}, ${JSON.stringify(fields)}`);
           }
@@ -657,7 +666,7 @@ exports.expressPreSession = async (hookName:string, {app}:any) => {
       }
 
       // start and bind to express
-      api.init();
+      await api.init();
       app.use(apiRoot, async (req:any, res:any) => {
         let response = null;
         try {

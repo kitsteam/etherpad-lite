@@ -21,31 +21,13 @@
 
 import {MapArrayType} from "../types/MapType";
 
-const absolutePaths = require('../utils/AbsolutePaths');
-import fs from 'fs';
 const api = require('../db/API');
-import log4js from 'log4js';
 const padManager = require('../db/PadManager');
-const randomString = require('../utils/randomstring');
-const argv = require('../utils/Cli').argv;
 import createHTTPError from 'http-errors';
-
-const apiHandlerLogger = log4js.getLogger('APIHandler');
-
-// ensure we have an apikey
-let apikey:string|null = null;
-const apikeyFilename = absolutePaths.makeAbsolute(argv.apikey || './APIKEY.txt');
-
-try {
-  apikey = fs.readFileSync(apikeyFilename, 'utf8');
-  apiHandlerLogger.info(`Api key file read from: "${apikeyFilename}"`);
-} catch (e) {
-  apiHandlerLogger.info(
-      `Api key file "${apikeyFilename}" not found.  Creating with random contents.`);
-  apikey = randomString(32);
-  fs.writeFileSync(apikeyFilename, apikey!, 'utf8');
-}
-
+import {Http2ServerRequest, Http2ServerResponse} from "node:http2";
+import {publicKeyExported} from "../security/OAuth2Provider";
+import {jwtVerify} from "jose";
+import {apikey} from './APIKeyHandler'
 // a list of all functions
 const version:MapArrayType<any> = {};
 
@@ -171,17 +153,18 @@ type APIFields = {
   api_key: string;
   padID: string;
   padName: string;
+  authorization: string;
 }
 
 /**
- * Handles a HTTP API call
+ * Handles an HTTP API call
  * @param {String} apiVersion the version of the api
  * @param {String} functionName the name of the called function
  * @param fields the params of the called function
- * @req express request object
- * @res express response object
+ * @param req express request object
  */
-exports.handle = async function (apiVersion: string, functionName: string, fields: APIFields) {
+exports.handle = async function (apiVersion: string, functionName: string, fields: APIFields,
+                                 req: Http2ServerRequest) {
   // say goodbye if this is an unknown API version
   if (!(apiVersion in version)) {
     throw new createHTTPError.NotFound('no such api version');
@@ -192,11 +175,24 @@ exports.handle = async function (apiVersion: string, functionName: string, field
     throw new createHTTPError.NotFound('no such function');
   }
 
-  // check the api key!
-  fields.apikey = fields.apikey || fields.api_key;
 
-  if (fields.apikey !== apikey!.trim()) {
-    throw new createHTTPError.Unauthorized('no or wrong API Key');
+
+  if (apikey !== null && apikey.trim().length > 0) {
+    fields.apikey = fields.apikey || fields.api_key || fields.authorization;
+    // API key is configured, check if it is valid
+    if (fields.apikey !== apikey!.trim()) {
+      throw new createHTTPError.Unauthorized('no or wrong API Key');
+    }
+  } else {
+    if(!req.headers.authorization) {
+      throw new createHTTPError.Unauthorized('no or wrong API Key');
+    }
+    try {
+      await jwtVerify(req.headers.authorization!.replace("Bearer ", ""), publicKeyExported!, {algorithms: ['RS256'],
+        requiredClaims: ["admin"]})
+    } catch (e) {
+      throw new createHTTPError.Unauthorized('no or wrong OAuth token');
+    }
   }
 
   // sanitize any padIDs before continuing
@@ -216,8 +212,4 @@ exports.handle = async function (apiVersion: string, functionName: string, field
 
   // call the api function
   return api[functionName].apply(this, functionParams);
-};
-
-exports.exportedForTestingOnly = {
-  apiKey: apikey,
 };

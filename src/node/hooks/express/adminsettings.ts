@@ -3,6 +3,7 @@
 
 import {PadQueryResult, PadSearchQuery} from "../../types/PadSearchQuery";
 import {PadType} from "../../types/PadType";
+import log4js from 'log4js';
 
 const eejs = require('../../eejs');
 const fsp = require('fs').promises;
@@ -15,197 +16,253 @@ const api = require('../../db/API');
 
 
 const queryPadLimit = 12;
+const logger = log4js.getLogger('adminSettings');
 
 
-exports.socketio = (hookName:string, {io}:any) => {
-  io.of('/settings').on('connection', (socket: any ) => {
-    // @ts-ignore
-    const {session: {user: {is_admin: isAdmin} = {}} = {}} = socket.conn.request;
-    if (!isAdmin) return;
+exports.socketio = (hookName: string, {io}: any) => {
+    io.of('/settings').on('connection', (socket: any) => {
+        // @ts-ignore
+        const {session: {user: {is_admin: isAdmin} = {}} = {}} = socket.conn.request;
+        if (!isAdmin) return;
 
-    socket.on('load', async (query:string):Promise<any> => {
-      let data;
-      try {
-        data = await fsp.readFile(settings.settingsFilename, 'utf8');
-      } catch (err) {
-        return console.log(err);
-      }
-      // if showSettingsInAdminPage is set to false, then return NOT_ALLOWED in the result
-      if (settings.showSettingsInAdminPage === false) {
-        socket.emit('settings', {results: 'NOT_ALLOWED'});
-      } else {
-        socket.emit('settings', {results: data});
-      }
-    });
-
-    socket.on('saveSettings', async (newSettings:string) => {
-      console.log('Admin request to save settings through a socket on /admin/settings');
-      await fsp.writeFile(settings.settingsFilename, newSettings);
-      socket.emit('saveprogress', 'saved');
-    });
-
-
-    socket.on('help', ()=> {
-      const gitCommit = settings.getGitCommit();
-      const epVersion = settings.getEpVersion();
-
-      const hooks:Map<string, Map<string,string>> = plugins.getHooks('hooks', false);
-      const clientHooks:Map<string, Map<string,string>> = plugins.getHooks('client_hooks', false);
-
-      function mapToObject(map: Map<string,any>) {
-        let obj = Object.create(null);
-        for (let [k,v] of map) {
-          if(v instanceof Map) {
-            obj[k] = mapToObject(v);
-          } else {
-            obj[k] = v;
-          }
-        }
-        return obj;
-      }
-
-      socket.emit('reply:help', {
-        gitCommit,
-        epVersion,
-        installedPlugins: plugins.getPlugins(),
-        installedParts: plugins.getParts(),
-        installedServerHooks: mapToObject(hooks),
-        installedClientHooks: mapToObject(clientHooks),
-        latestVersion: UpdateCheck.getLatestVersion(),
-      })
-    });
-
-
-    socket.on('padLoad', async (query: PadSearchQuery) => {
-      const {padIDs} = await padManager.listAllPads();
-
-      const data:{
-        total: number,
-        results?: PadQueryResult[]
-      } = {
-        total: padIDs.length,
-      };
-      let result: string[] = padIDs;
-      let maxResult;
-
-      // Filter out matches
-      if (query.pattern) {
-        result = result.filter((padName: string) => padName.includes(query.pattern));
-      }
-
-      data.total = result.length;
-
-      maxResult = result.length - 1;
-      if (maxResult < 0) {
-        maxResult = 0;
-      }
-
-      if (query.offset && query.offset < 0) {
-        query.offset = 0;
-      } else if (query.offset > maxResult) {
-        query.offset = maxResult;
-      }
-
-      if (query.limit && query.limit < 0) {
-        query.limit = 0;
-      } else if (query.limit > queryPadLimit) {
-        query.limit = queryPadLimit;
-      }
-
-      if (query.sortBy === 'padName') {
-        result = result.sort((a,b)=>{
-            if(a < b) return query.ascending ? -1 : 1;
-            if(a > b) return query.ascending ? 1 : -1;
-            return 0;
-        }).slice(query.offset, query.offset + query.limit);
-
-        data.results = await Promise.all(result.map(async (padName: string) => {
-            const pad = await padManager.getPad(padName);
-            const revisionNumber = pad.getHeadRevisionNumber()
-            const userCount = api.padUsersCount(padName).padUsersCount;
-            const lastEdited = await pad.getLastEdit();
-
-            return {
-              padName,
-              lastEdited,
-              userCount,
-              revisionNumber
-            }}));
-      } else {
-        const currentWinners: PadQueryResult[] = []
-        let queryOffsetCounter = 0
-        for (let res of result) {
-
-          const pad = await padManager.getPad(res);
-          const padType = {
-            padName: res,
-            lastEdited: await pad.getLastEdit(),
-            userCount: api.padUsersCount(res).padUsersCount,
-            revisionNumber: pad.getHeadRevisionNumber()
-          };
-
-          if (currentWinners.length < query.limit) {
-            if(queryOffsetCounter < query.offset){
-              queryOffsetCounter++
-              continue
+        socket.on('load', async (query: string): Promise<any> => {
+            let data;
+            try {
+                data = await fsp.readFile(settings.settingsFilename, 'utf8');
+            } catch (err) {
+                return logger.error(`Error loading settings: ${err}`);
             }
-            currentWinners.push({
-              padName: res,
-              lastEdited: await pad.getLastEdit(),
-              userCount: api.padUsersCount(res).padUsersCount,
-              revisionNumber: pad.getHeadRevisionNumber()
+            // if showSettingsInAdminPage is set to false, then return NOT_ALLOWED in the result
+            if (settings.showSettingsInAdminPage === false) {
+                socket.emit('settings', {results: 'NOT_ALLOWED'});
+            } else {
+                socket.emit('settings', {results: data});
+            }
+        });
+
+        socket.on('saveSettings', async (newSettings: string) => {
+            logger.info('Admin request to save settings through a socket on /admin/settings');
+            try {
+                await fsp.writeFile(settings.settingsFilename, newSettings);
+            } catch (err) {
+                logger.error(`Error saving settings: ${err}`);
+            }
+            socket.emit('saveprogress', 'saved');
+        });
+
+
+        type ShoutMessage = {
+            message: string,
+            sticky: boolean,
+        }
+
+        socket.on('shout', (message: ShoutMessage) => {
+            const messageToSend = {
+                type: "COLLABROOM",
+                data: {
+                    type: "shoutMessage",
+                    payload: {
+                        message: message,
+                        timestamp: Date.now()
+                    }
+                }
+            }
+
+            io.of('/settings').emit('shout', messageToSend);
+            io.sockets.emit('shout', messageToSend);
+        })
+
+
+        socket.on('help', () => {
+            const gitCommit = settings.getGitCommit();
+            const epVersion = settings.getEpVersion();
+
+            const hooks: Map<string, Map<string, string>> = plugins.getHooks('hooks', false);
+            const clientHooks: Map<string, Map<string, string>> = plugins.getHooks('client_hooks', false);
+
+            function mapToObject(map: Map<string, any>) {
+                let obj = Object.create(null);
+                for (let [k, v] of map) {
+                    if (v instanceof Map) {
+                        obj[k] = mapToObject(v);
+                    } else {
+                        obj[k] = v;
+                    }
+                }
+                return obj;
+            }
+
+            socket.emit('reply:help', {
+                gitCommit,
+                epVersion,
+                installedPlugins: plugins.getPlugins(),
+                installedParts: plugins.getParts(),
+                installedServerHooks: mapToObject(hooks),
+                installedClientHooks: mapToObject(clientHooks),
+                latestVersion: UpdateCheck.getLatestVersion(),
             })
-          } else {
-            // Kick out worst pad and replace by current pad
-            let worstPad = currentWinners.sort((a, b) => {
-                if (a[query.sortBy] < b[query.sortBy]) return query.ascending ? -1 : 1;
-                if (a[query.sortBy] > b[query.sortBy]) return query.ascending ? 1 : -1;
-                return 0;
-            })
-            if(worstPad[0]&&worstPad[0][query.sortBy] < padType[query.sortBy]){
-              if(queryOffsetCounter < query.offset){
-                queryOffsetCounter++
-                continue
+        });
+
+
+        socket.on('padLoad', async (query: PadSearchQuery) => {
+            const {padIDs} = await padManager.listAllPads();
+
+            const data: {
+                total: number,
+                results?: PadQueryResult[]
+            } = {
+                total: padIDs.length,
+            };
+            let result: string[] = padIDs;
+            let maxResult;
+
+            // Filter out matches
+            if (query.pattern) {
+                result = result.filter((padName: string) => padName.includes(query.pattern));
+            }
+
+            data.total = result.length;
+
+            maxResult = result.length - 1;
+            if (maxResult < 0) {
+                maxResult = 0;
+            }
+
+            // Reset to default values if out of bounds
+            if (query.offset && query.offset < 0) {
+                query.offset = 0;
+            } else if (query.offset > maxResult) {
+                query.offset = maxResult;
+            }
+
+            if (query.limit && query.limit < 0) {
+              // Too small
+                query.limit = 0;
+            } else if (query.limit > queryPadLimit) {
+              // Too big
+                query.limit = queryPadLimit;
+            }
+
+
+            if (query.sortBy === 'padName') {
+                result = result.sort((a, b) => {
+                    if (a < b) return query.ascending ? -1 : 1;
+                    if (a > b) return query.ascending ? 1 : -1;
+                    return 0;
+                }).slice(query.offset, query.offset + query.limit);
+
+                data.results = await Promise.all(result.map(async (padName: string) => {
+                    const pad = await padManager.getPad(padName);
+                    const revisionNumber = pad.getHeadRevisionNumber()
+                    const userCount = api.padUsersCount(padName).padUsersCount;
+                    const lastEdited = await pad.getLastEdit();
+
+                    return {
+                        padName,
+                        lastEdited,
+                        userCount,
+                        revisionNumber
+                    }
+                }));
+            } else if (query.sortBy === "revisionNumber") {
+                const currentWinners: PadQueryResult[] = []
+                const padMapping = [] as {padId: string, revisionNumber: number}[]
+                for (let res of result) {
+                    const pad = await padManager.getPad(res);
+                    const revisionNumber = pad.getHeadRevisionNumber()
+                    padMapping.push({padId: res, revisionNumber})
+                }
+                padMapping.sort((a, b) => {
+                    if (a.revisionNumber < b.revisionNumber) return query.ascending ? -1 : 1;
+                    if (a.revisionNumber > b.revisionNumber) return query.ascending ? 1 : -1;
+                    return 0;
+                })
+
+              for (const padRetrieval of padMapping.slice(query.offset, query.offset + query.limit)) {
+                let pad = await padManager.getPad(padRetrieval.padId);
+                currentWinners.push({
+                  padName: padRetrieval.padId,
+                  lastEdited: await pad.getLastEdit(),
+                  userCount: api.padUsersCount(pad.padName).padUsersCount,
+                  revisionNumber: padRetrieval.revisionNumber
+                })
               }
-              currentWinners.splice(currentWinners.indexOf(worstPad[0]), 1)
-              currentWinners.push({
-                padName: res,
-                lastEdited: await pad.getLastEdit(),
-                userCount: api.padUsersCount(res).padUsersCount,
-                revisionNumber: pad.getHeadRevisionNumber()
+
+              data.results = currentWinners;
+            } else if (query.sortBy === "userCount") {
+              const currentWinners: PadQueryResult[] = []
+              const padMapping = [] as {padId: string, userCount: number}[]
+              for (let res of result) {
+                const userCount = api.padUsersCount(res).padUsersCount
+                padMapping.push({padId: res, userCount})
+              }
+              padMapping.sort((a, b) => {
+                if (a.userCount < b.userCount) return query.ascending ? -1 : 1;
+                if (a.userCount > b.userCount) return query.ascending ? 1 : -1;
+                return 0;
               })
+
+              for (const padRetrieval of padMapping.slice(query.offset, query.offset + query.limit)) {
+                let pad = await padManager.getPad(padRetrieval.padId);
+                currentWinners.push({
+                  padName: padRetrieval.padId,
+                  lastEdited: await pad.getLastEdit(),
+                  userCount: padRetrieval.userCount,
+                  revisionNumber: pad.getHeadRevisionNumber()
+                })
+              }
+              data.results = currentWinners;
+            } else if (query.sortBy === "lastEdited") {
+              const currentWinners: PadQueryResult[] = []
+              const padMapping = [] as {padId: string, lastEdited: string}[]
+              for (let res of result) {
+                const pad = await padManager.getPad(res);
+                const lastEdited = await pad.getLastEdit();
+                padMapping.push({padId: res, lastEdited})
+              }
+              padMapping.sort((a, b) => {
+                if (a.lastEdited < b.lastEdited) return query.ascending ? -1 : 1;
+                if (a.lastEdited > b.lastEdited) return query.ascending ? 1 : -1;
+                return 0;
+              })
+
+              for (const padRetrieval of padMapping.slice(query.offset, query.offset + query.limit)) {
+                let pad = await padManager.getPad(padRetrieval.padId);
+                currentWinners.push({
+                  padName: padRetrieval.padId,
+                  lastEdited: padRetrieval.lastEdited,
+                  userCount: api.padUsersCount(pad.padName).padUsersCount,
+                  revisionNumber: pad.getHeadRevisionNumber()
+                })
+              }
+              data.results = currentWinners;
             }
-          }
-        }
-        data.results = currentWinners;
-      }
 
-        socket.emit('results:padLoad', data);
-    })
+            socket.emit('results:padLoad', data);
+        })
 
 
-    socket.on('deletePad', async (padId: string) => {
-      const padExists = await padManager.doesPadExists(padId);
-      if (padExists) {
-        const pad = await padManager.getPad(padId);
-        await pad.remove();
-        socket.emit('results:deletePad', padId);
-      }
-    })
+        socket.on('deletePad', async (padId: string) => {
+            const padExists = await padManager.doesPadExists(padId);
+            if (padExists) {
+                logger.info(`Deleting pad: ${padId}`);
+                const pad = await padManager.getPad(padId);
+                await pad.remove();
+                socket.emit('results:deletePad', padId);
+            }
+        })
 
-    socket.on('restartServer', async () => {
-      console.log('Admin request to restart server through a socket on /admin/settings');
-      settings.reloadSettings();
-      await plugins.update();
-      await hooks.aCallAll('loadSettings', {settings});
-      await hooks.aCallAll('restartServer');
+        socket.on('restartServer', async () => {
+            logger.info('Admin request to restart server through a socket on /admin/settings');
+            settings.reloadSettings();
+            await plugins.update();
+            await hooks.aCallAll('loadSettings', {settings});
+            await hooks.aCallAll('restartServer');
+        });
     });
-  });
 };
 
 
-
-const searchPad = async (query:PadSearchQuery) => {
+const searchPad = async (query: PadSearchQuery) => {
 
 }
-

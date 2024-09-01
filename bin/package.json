@@ -1,25 +1,26 @@
 {
   "name": "bin",
-  "version": "2.0.1",
+  "version": "2.2.2",
   "description": "",
   "main": "checkAllPads.js",
   "directories": {
     "doc": "doc"
   },
   "dependencies": {
-    "axios": "^1.6.8",
+    "axios": "^1.7.5",
     "ep_etherpad-lite": "workspace:../src",
     "log4js": "^6.9.1",
-    "semver": "^7.6.0",
-    "tsx": "^4.7.1",
-    "ueberdb2": "^4.2.63"
+    "semver": "^7.6.3",
+    "tsx": "^4.17.0",
+    "ueberdb2": "^4.2.93"
   },
   "devDependencies": {
-    "@types/node": "^20.11.27",
+    "@types/node": "^22.4.2",
     "@types/semver": "^7.5.8",
-    "typescript": "^5.4.2"
+    "typescript": "^5.5.4"
   },
   "scripts": {
+    "makeDocs": "node --import tsx make_docs.ts",
     "checkPad": "node --import tsx checkPad.ts",
     "checkAllPads": "node --import tsx checkAllPads.ts",
     "createUserSession": "node --import tsx createUserSession.ts",
@@ -32,7 +33,8 @@
     "rebuildPad": "node --import tsx rebuildPad.ts",
     "stalePlugins": "node --import tsx ./plugins/stalePlugins.ts",
     "checkPlugin": "node --import tsx ./plugins/checkPlugin.ts",
-    "install-plugins": "node --import tsx ./installPlugins.ts"
+    "plugins": "node --import tsx ./plugins.ts",
+    "generateChangelog": "node --import tsx generateReleaseNotes.ts"
   },
   "author": "",
   "license": "ISC"

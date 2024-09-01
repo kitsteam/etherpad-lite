@@ -7,7 +7,7 @@ import process from 'process';
 
 describe(__filename, function () {
   describe('parseSettings', function () {
-    let settings:any;
+    let settings: any;
     const envVarSubstTestCases = [
       {name: 'true', val: 'true', var: 'SET_VAR_TRUE', want: true},
       {name: 'false', val: 'false', var: 'SET_VAR_FALSE', want: false},
@@ -58,4 +58,35 @@ describe(__filename, function () {
       });
     });
   });
+
+
+  describe("Parse plugin settings", function () {
+
+    before(async function () {
+      process.env["EP__ADMIN__PASSWORD"] = "test"
+    })
+
+    it('should parse plugin settings', async function () {
+      let settings = parseSettings(path.join(__dirname, 'settings.json'), true);
+      assert.equal(settings.ADMIN.PASSWORD, "test");
+    })
+
+    it('should bundle settings with same path', async function () {
+      process.env["EP__ADMIN__USERNAME"] = "test"
+      let settings = parseSettings(path.join(__dirname, 'settings.json'), true);
+      assert.deepEqual(settings.ADMIN, {PASSWORD: "test", USERNAME: "test"});
+    })
+
+    it("Can set the ep themes", async function () {
+      process.env["EP__ep_themes__default_theme"] = "hacker"
+      let settings = parseSettings(path.join(__dirname, 'settings.json'), true);
+      assert.deepEqual(settings.ep_themes, {"default_theme": "hacker"});
+    })
+
+    it("can set the ep_webrtc settings", async function () {
+      process.env["EP__ep_webrtc__enabled"] = "true"
+      let settings = parseSettings(path.join(__dirname, 'settings.json'), true);
+      assert.deepEqual(settings.ep_webrtc, {"enabled": true});
+    })
+  })
 });

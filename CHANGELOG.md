@@ -1,3 +1,58 @@
+# 2.2.2
+
+### Notable enhancements and fixes
+
+- Removal of Etherpad require kernel: We finally managed to include esbuild to bundle our frontend code together. So no matter how many plugins your server has it is always one JavaScript file. This boosts performance dramatically.
+- Added log layoutType: This lets you print the log in either colored or basic (black and white text)
+- Introduced esbuild for bundling CSS files
+- Cache all files to be bundled in memory for faster load speed
+
+
+# 2.1.1
+
+
+### Notable enhancements and fixes
+
+- Fixed failing Docker build when checked out as git submodule. Thanks to @neurolabs
+- Fixed: Fallback to websocket and polling when unknown(old) config is present for socket io
+- Fixed: Next page disabled if zero page by @samyakj023
+- On CTRL+CLICK bring the window back to focus by Helder Sepulveda
+
+# 2.1.0
+
+### Notable enhancements and fixes
+
+- Added PWA support. You can now add your Etherpad instance to your home screen on your mobile device or desktop.
+- Fixed live plugin manager versions clashing. Thanks to @yacchin1205
+- Fixed a bug in the pad panel where pagination was not working correctly when sorting by pad name
+
+### Compatibility changes
+
+- Reintroduced APIKey.txt support. You can now switch between APIKey and OAuth2.0 authentication. This can be toggled with the setting authenticationMethod. The default is OAuth2. If you want to use the APIKey method you can set that to `apikey`.
+
+
+# 2.0.3
+
+### Notable enhancements and fixes
+
+- Added documentation for replacing apikeys with oauth2
+- Bumped live plugin manager to 0.20.0. Thanks to @fgreinacher
+- Added better documentation for using docker-compose with Etherpad
+
+
+
+# 2.0.2
+
+### Notable enhancements and fixes
+
+- Fixed the locale loading in the admin panel
+- Added OAuth2.0 support for the Etherpad API. You can now log in  into the Etherpad API with your admin user using OAuth2
+
+### Compatibility changes
+
+- The tests now require generating a token from the OAuth secret. You can find the `generateJWTToken` in the common.ts script for plugin endpoint updates.
+
+
 # 2.0.1
 
 ### Notable enhancements and fixes
@@ -13,7 +68,7 @@
 - Socket io has been updated to 4.7.5. This means that the json.send function won't work anymore and needs to be changed to .emit('message', myObj)
 - Deprecating npm version 6 in favor of pnpm: We have made the decision to switch to the well established pnpm (https://pnpm.io/). It works by symlinking dependencies into a global directory allowing you to have a cleaner and more reliable environment.
 - Introducing Typescript to the Etherpad core: Etherpad core logic has been rewritten in Typescript allowing for compiler checking of errors.
-- Rewritten Admin Panel: The Admin panel has been rewritten in React and now features a more pleasant user experience. It now also features an integrated pad searching with sorting functionality. 
+- Rewritten Admin Panel: The Admin panel has been rewritten in React and now features a more pleasant user experience. It now also features an integrated pad searching with sorting functionality.
 
 ### Notable enhancements and fixes
 
@@ -23,17 +78,17 @@
 * Enhancements
   - pnpm Workspaces: In addition to pnpm we introduced workspaces. A clean way to manage multiple bounded contexts like the admin panel or the bin folder.
   - Bin folder: The bin folder has been moved from the src folder to the root folder. This change was necessary as the contained scripts do not represent core functionality of the user.
-  - Starting Etherpad: Etherpad can now be started with a single command: `pnpm run prod` in the root directory. 
+  - Starting Etherpad: Etherpad can now be started with a single command: `pnpm run prod` in the root directory.
   - Installing Etherpad: Etherpad no longer symlinks itself in the root directory. This is now also taken care by pnpm, and it just creates a node_modules folder with the src directory`s ep_etherpad-lite folder
-  - Plugins can now be installed simply via the command: `pnpm run install-plugins first-plugin second-plugin` or if you want to install from path you can do:
-  `pnpm run install-plugins --path ../path-to-plugin`
+  - Plugins can now be installed simply via the command: `pnpm run plugins i first-plugin second-plugin` or if you want to install from path you can do:
+  `pnpm run plugins i --path ../path-to-plugin`
 
 
 # 1.9.7
 
 ### Notable enhancements and fixes
 
-* Added Live Plugin Manager: Plugins are now installed into a separate folder on the host system. This folder is called `plugin_packages`. 
+* Added Live Plugin Manager: Plugins are now installed into a separate folder on the host system. This folder is called `plugin_packages`.
 That way the plugins are separated from the normal etherpad installation.
 * Make repairPad.js more verbose
 * Fixed favicon not being loaded correctly
@@ -56,19 +111,19 @@ That way the plugins are separated from the normal etherpad installation.
 
 ### Notable enhancements and fixes
 
-* The support for the tidy program to tidy up HTML files has been removed. This decision was made because it hasn't been updated for years and also caused an incompability when exporting a pad with Abiword. 
+* The support for the tidy program to tidy up HTML files has been removed. This decision was made because it hasn't been updated for years and also caused an incompability when exporting a pad with Abiword.
 
 
 # 1.9.4
 
 ### Compatibility changes
 
-* Log4js has been updated to the latest version. As it involved a bump of 6 major version. 
+* Log4js has been updated to the latest version. As it involved a bump of 6 major version.
   A lot has changed since then. Most notably the console appender has been deprecated. You can find out more about it [here](https://github.com/log4js-node/log4js-node)
 
 ### Notable enhancements and fixes
 
-* Fix for MySQL: The logger calls were incorrectly configured leading to a crash when e.g. somebody uses a different encoding than standard MySQL encoding. 
+* Fix for MySQL: The logger calls were incorrectly configured leading to a crash when e.g. somebody uses a different encoding than standard MySQL encoding.
 
 # 1.9.3
 
@@ -76,7 +131,7 @@ That way the plugins are separated from the normal etherpad installation.
 
 * express-rate-limit has been bumped to 7.0.0: This involves the breaking change that "max: 0"
 in the importExportRateLimiting is set to always trigger. So set it to your desired value.
-If you haven't changed that value in the settings.json you are all set. 
+If you haven't changed that value in the settings.json you are all set.
 
 ### Notable enhancements and fixes
 
@@ -95,7 +150,7 @@ If you haven't changed that value in the settings.json you are all set.
   * Enable session key rotation: This setting can be enabled in the settings.json. It changes the signing key for the cookie authentication in a fixed interval.
 
 * Bugfixes
-  * Fix appendRevision when creating a new pad via the API without a text. 
+  * Fix appendRevision when creating a new pad via the API without a text.
 
 
 * Enhancements
@@ -104,11 +159,11 @@ If you haven't changed that value in the settings.json you are all set.
 
 ### Compatibility changes
 
-* No compability changes as JQuery maintains excellent backwards compatibility. 
+* No compability changes as JQuery maintains excellent backwards compatibility.
 
 #### For plugin authors
 
-* Please update to JQuery 3.7. There is an excellent deprecation guide over [here](https://api.jquery.com/category/deprecated/). Version 3.1 to 3.7 are relevant for the upgrade. 
+* Please update to JQuery 3.7. There is an excellent deprecation guide over [here](https://api.jquery.com/category/deprecated/). Version 3.1 to 3.7 are relevant for the upgrade.
 
 # 1.9.1
 
@@ -116,7 +171,7 @@ If you haven't changed that value in the settings.json you are all set.
 
 * Security
   * Limit requested revisions in timeslider and export to head revision. (affects v1.9.0)
-  
+
 * Bugfixes
   * revisions in `CHANGESET_REQ` (timeslider) and export (txt, html, custom)
     are now checked to be numbers.
@@ -130,7 +185,7 @@ If you haven't changed that value in the settings.json you are all set.
 * tests: drop windows 7 test coverage & use chrome latest for admin tests
 * Require Node 16 for Etherpad and target Node 20 for testing
 
-    
+
 # 1.9.0
 
 ### Notable enhancements and fixes

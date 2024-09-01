@@ -18,7 +18,7 @@ import {APool} from "../types/PadType";
  * limitations under the License.
  */
 
-const AttributePool = require('../../static/js/AttributePool');
+import AttributePool from '../../static/js/AttributePool';
 const {Pad} = require('../db/Pad');
 const Stream = require('./Stream');
 const authorManager = require('../db/AuthorManager');
@@ -26,7 +26,7 @@ const db = require('../db/DB');
 const hooks = require('../../static/js/pluginfw/hooks');
 import log4js from 'log4js';
 const supportedElems = require('../../static/js/contentcollector').supportedElems;
-import ueberdb from 'ueberdb2';
+import {Database} from 'ueberdb2';
 
 const logger = log4js.getLogger('ImportEtherpad');
 
@@ -56,12 +56,12 @@ exports.setPadRaw = async (padId: string, r: string, authorId = '') => {
 
   const data = new Map();
   const existingAuthors = new Set();
-  const padDb = new ueberdb.Database('memory', {data});
+  const padDb = new Database('memory', {data});
   await padDb.init();
   try {
     const processRecord = async (key:string, value: null|{
       padIDs: string|Record<string, unknown>,
-      pool: APool
+      pool: AttributePool
     }) => {
       if (!value) return;
       const keyParts = key.split(':');
