@@ -21,7 +21,7 @@ services:
         ETHERPAD_GITHUB_PLUGINS: >-
           kitsteam/ep_push2delete
           kitsteam/ep_delete_empty_pads
-          kitsteam/ep_comments_page#merge-upstream-1.0.36
+          kitsteam/ep_comments_page#main
           kitsteam/ep_delete_after_delay
       target: development
     tty: true
