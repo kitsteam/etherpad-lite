@@ -16,7 +16,7 @@ on:
     types: [published]
   push:
     branches:
-      - 'merge-upstream-2.2.2-dev'
+      - 'merge-upstream-2.2.4'
 
 env:
   REGISTRY: ghcr.io
