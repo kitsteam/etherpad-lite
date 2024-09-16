@@ -1,7 +1,11 @@
-<% var settings=require("ep_etherpad-lite/node/utils/Settings") , langs=require("ep_etherpad-lite/node/hooks/i18n").availableLangs ,
-  pluginUtils=require('ep_etherpad-lite/static/js/pluginfw/shared') ; %>
-  <!doctype html>
-  <html translate="no" class="pad <%=pluginUtils.clientPluginNames().join(' '); %> <%=settings.skinVariants%>">
+<%
+  var settings = require("ep_etherpad-lite/node/utils/Settings")
+    , langs = require("ep_etherpad-lite/node/hooks/i18n").availableLangs
+    , pluginUtils = require('ep_etherpad-lite/static/js/pluginfw/shared')
+    ;
+%>
+<!doctype html>
+<html translate="no" class="pad <%=pluginUtils.clientPluginNames().join(' '); %> <%=settings.skinVariants%>">
 <head>
   <% e.begin_block("htmlHead"); %>
   <% e.end_block(); %>

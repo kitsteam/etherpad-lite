@@ -10,65 +10,65 @@ Cut and paste the following code into any webpage to embed a pad. The parameters
 <iframe src='http://pad.test.de/p/PAD_NAME#L4?showChat=false&showLineNumbers=false' width=600 height=400></iframe>
 ----
 
-## showLineNumbers
-* Boolean
+=== showLineNumbers
+ * Boolean
 
 Default: true
 
-## showControls
-* Boolean
+=== showControls
+ * Boolean
 
 Default: true
 
-## showChat
-* Boolean
+=== showChat
+ * Boolean
 
 Default: true
 
-## useMonospaceFont
-* Boolean
+=== useMonospaceFont
+ * Boolean
 
 Default: false
 
-## userName
-* String
+=== userName
+ * String
 
 Default: "unnamed"
 
 Example: `userName=Etherpad%20User`
 
-## userColor
-* String (css hex color value)
+=== userColor
+ * String (css hex color value)
 
 Default: randomly chosen by pad server
 
 Example: `userColor=%23ff9900`
 
-## noColors
-* Boolean
+=== noColors
+ * Boolean
 
 Default: false
 
-## alwaysShowChat
-* Boolean
+=== alwaysShowChat
+ * Boolean
 
 Default: false
 
-## lang
-* String
+=== lang
+ * String
 
 Default: en
 
 Example: `lang=ar` (translates the interface into Arabic)
 
-## rtl
-* Boolean
+=== rtl
+ * Boolean
 
 Default: true
 Displays pad text from right to left.
 
-## #L
-* Int
+=== #L
+ * Int
 
 Default: 0
 Focuses pad at specific line number and places caret at beginning of this line
