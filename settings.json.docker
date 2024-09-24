@@ -659,7 +659,7 @@
    */
   "lowerCasePadIds": "${LOWER_CASE_PAD_IDS:false}",
   "sso": {
-    "issuer": "${SSO_ISSUER:http://localhost:9001}",
+    "issuer": "${SSO_ISSUER:https://pad.kits.blog}",
       "clients": []
     },
 
